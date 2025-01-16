@@ -56,7 +56,7 @@ function loadModel(filePath) {
 }
 
 // Example: Dynamically load a model
-loadModel('models/parametric_of_square_bowl_1.glb'); // Replace with the actual model path
+loadModel('models/2024_nissan_gt-r_nismo.glb.glb'); // Replace with the actual model path
 
 // Animation loop
 function animate() {
