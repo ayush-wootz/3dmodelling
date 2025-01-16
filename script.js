@@ -1,57 +1,64 @@
-const viewer = document.getElementById("viewer");
-
-// Scene setup
+// Basic scene setup
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(3, 3, 3);
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-viewer.appendChild(renderer.domElement);
+document.body.appendChild(renderer.domElement);
 
-// Lights
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(5, 5, 5).normalize();
-scene.add(light);
-
-const ambientLight = new THREE.AmbientLight(0x404040, 1);
+// Lighting
+const ambientLight = new THREE.AmbientLight(0x404040, 1); // Soft light
 scene.add(ambientLight);
 
-// Controls (optional)
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 5, 5);
+scene.add(directionalLight);
+
+// Controls
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-// Loaders
-const stlLoader = new THREE.STLLoader();
-const gltfLoader = new THREE.GLTFLoader();
+// Add a default box (as a placeholder)
+const defaultGeometry = new THREE.BoxGeometry(1, 1, 1);
+const defaultMaterial = new THREE.MeshStandardMaterial({ color: 0x606060 });
+const defaultMesh = new THREE.Mesh(defaultGeometry, defaultMaterial);
+scene.add(defaultMesh);
 
-document.getElementById("file-input").addEventListener("change", (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
+// Function to load an STL or GLB model
+function loadModel(filePath) {
+  const fileExtension = filePath.split('.').pop().toLowerCase();
 
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const data = e.target.result;
+  if (fileExtension === 'stl') {
+    const loader = new THREE.STLLoader();
+    loader.load(filePath, function (geometry) {
+      // Remove the default box
+      scene.clear();
+      scene.add(ambientLight);
+      scene.add(directionalLight);
 
-    // Clear existing model
-    scene.clear();
-    scene.add(light);
-    scene.add(ambientLight);
-
-    if (file.name.endsWith(".stl")) {
-      const geometry = stlLoader.parse(data);
-      const material = new THREE.MeshStandardMaterial({ color: 0x606060 });
+      const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
       const mesh = new THREE.Mesh(geometry, material);
       scene.add(mesh);
-    } else if (file.name.endsWith(".glb")) {
-      gltfLoader.parse(data, "", (gltf) => {
-        scene.add(gltf.scene);
-      });
-    }
-  };
+    });
+  } else if (fileExtension === 'glb') {
+    const loader = new THREE.GLTFLoader();
+    loader.load(filePath, function (gltf) {
+      // Remove the default box
+      scene.clear();
+      scene.add(ambientLight);
+      scene.add(directionalLight);
 
-  reader.readAsArrayBuffer(file);
-});
+      scene.add(gltf.scene);
+    });
+  } else {
+    alert('Unsupported file format! Please use .stl or .glb files.');
+  }
+}
 
+// Example: Dynamically load a model
+loadModel('models/example.stl'); // Replace with the actual model path
+
+// Animation loop
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
