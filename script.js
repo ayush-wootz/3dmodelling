@@ -56,7 +56,7 @@ function loadModel(filePath) {
 }
 
 // Example: Dynamically load a model
-loadModel('models/example.stl'); // Replace with the actual model path
+loadModel('models/parametric_of_square_bowl_1.glb.stl'); // Replace with the actual model path
 
 // Animation loop
 function animate() {
